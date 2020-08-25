@@ -153,7 +153,7 @@ def sub_plot_2_value(row, col, index,
                      y1_label, y2_label,
                      cood_x_lable, cood_y_label,  cood_fontsize,
                      title, title_fontsize,
-                     y_lower, y_upper, x_lower, x_upper, x_step,
+                     y_lower, y_upper, x_lower, x_upper, x_step, y_step,
                      is_legend
                      ):
     plt.subplot(row, col, index)
@@ -165,7 +165,7 @@ def sub_plot_2_value(row, col, index,
     plt.ylim((y_lower, y_upper))
     plt.xlim((x_lower, x_upper))
     plt.xticks(np.arange(x_lower, x_upper, step=x_step))
-    plt.yticks(np.arange(-y_upper, y_upper, step=y_upper/2))
+    plt.yticks(np.arange(y_lower, y_upper, step=y_step))
     plt.tight_layout()
     if is_legend == True:
         plt.legend()
@@ -175,18 +175,32 @@ def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
 
 
+    path='evaluation_euroc/'
+    x_right=100
+    x_step=20
+
+    time1, x1, y1, z1, qw1, qx1, qy1, qz1, \
+    vx, vy, vz, bgx1, bgy1, bgz1, \
+    bax1, bay1, baz1 = np.loadtxt(path+'our_result_vel.csv', delimiter=',', unpack=True)
+
+    time_gt1, x_gt1, y_gt1, z_gt1, qw_gt1, qx_gt1, qy_gt1, qz_gt1, \
+    vx_gt, vy_gt, vz_gt, bgx_gt1, bgy_gt1, bgz_gt1, \
+    bax_gt1, bay_gt1, baz_gt1 = np.loadtxt(path+'gt_result_path_vel.csv', delimiter=',', unpack=True)
+
+
+
     time, x, y, z, qw, qx, qy, qz, \
-    vx, vy, vz, bgx, bgy, bgz, \
-    bax, bay, baz = np.loadtxt('evaluation_fusion/our_result.csv', delimiter=',', unpack=True)
+    vx1, vy1, vz1, bgx, bgy, bgz, \
+    bax, bay, baz = np.loadtxt(path+'our_result.csv', delimiter=',', unpack=True)
 
     time_gt, x_gt, y_gt, z_gt, qw_gt, qx_gt, qy_gt, qz_gt, \
-    vx_gt, vy_gt, vz_gt, bgx_gt, bgy_gt, bgz_gt, \
-    bax_gt, bay_gt, baz_gt = np.loadtxt('evaluation_fusion/gt_result_path.csv', delimiter=',', unpack=True)
+    vx_gt1, vy_gt1, vz_gt1, bgx_gt, bgy_gt, bgz_gt, \
+    bax_gt, bay_gt, baz_gt = np.loadtxt(path+'gt_result_path.csv', delimiter=',', unpack=True)
 
 
 
-    mu = 0.1
-    sigma = 0.12
+    mu = 0.0
+    sigma = 0.0
     vx_sigma=[]
     for v in vx:
         vx_sigma.append(v+random.gauss(mu,sigma))
@@ -202,9 +216,12 @@ def print_hi(name):
         vz_sigma.append(v+random.gauss(mu,sigma))
     vz_sigma = np.array(vz_sigma)
 
-
+    time1-=time1[0]
+    time1/=(1e10)
     time-=time[0]
     time/=(1e10)
+
+
     plt.figure(figsize=(20, 10))
 
     sub_plot_3_value(4, 2, 1,
@@ -212,7 +229,7 @@ def print_hi(name):
                      'x', 'y', 'z',
                      'time [$s$]', 'acc bias [$m/s^2$]', 'small',
                      '(a) Accelerometer bias estimates', 'large',
-                     -1.0, 1.0, 0, 450, 60
+                     -1.5, 1.5, 0, x_right, x_step
                      )
 
     sub_plot_3_value(4, 2, 2,
@@ -220,7 +237,7 @@ def print_hi(name):
                      'x', 'y', 'z',
                      'time [$s$]', 'gyro bias [$deg/s$]', 'small',
                      '(b) Gyroscope bias estimates', 'large',
-                     -0.02, 0.02, 0, 450, 60
+                     -0.1, 0.1, 0, x_right, x_step
                      )
 
     angles=[]
@@ -246,7 +263,7 @@ def print_hi(name):
                      'our', 'gt',
                      '', 'roll [$deg$]', 'small',
                      '(c) Attitude estimates', 'large',
-                     -8, 8, 0, 450, 60,
+                     -75, 100, 0, x_right, x_step,40,
                      True
                      )
 
@@ -255,7 +272,7 @@ def print_hi(name):
                      '', '',
                      '', 'pitch [$deg$]', 'small',
                      '', 'large',
-                     -10, 10, 0, 450, 60,
+                     -10, 30, 0, x_right, x_step,10,
                      False
                      )
 
@@ -264,34 +281,34 @@ def print_hi(name):
                      '', '',
                      'time [$s$]', 'yaw [$deg$]', 'small',
                      '', 'large',
-                     -200, 200, 0, 450, 60,
+                     -30, 30, 0, x_right, x_step,15,
                      False
                      )
 
     sub_plot_2_value(4, 2, 4,
-                     time, vx_sigma, vx_gt,
+                     time1, vx_sigma, vx_gt,
                      'our', 'gt',
-                     '', 'north [$m/s$]', 'small',
+                     '', 'body x [$m/s$]', 'small',
                      '(d) Velocity estimates', 'large',
-                     -15, 15, 0, 450, 60,
+                     -2, 2, 0, x_right, x_step,1,
                      True
                      )
 
     sub_plot_2_value(4, 2, 6,
-                     time, vy_sigma, vy_gt,
+                     time1, vy_sigma, vy_gt,
                      '', '',
-                     '', 'east [$m/s$]', 'small',
+                     '', 'body y [$m/s$]', 'small',
                      '', 'large',
-                     -15, 15, 0, 450, 60,
+                     -3.5, 3, 0, x_right, x_step,2,
                      False
                      )
 
     sub_plot_2_value(4, 2, 8,
-                     time, vz_sigma, vz_gt,
+                     time1, vz_sigma, vz_gt,
                      '', '',
-                     'time [$s$]', 'up [$m/s$]', 'small',
+                     'time [$s$]', 'body z [$m/s$]', 'small',
                      '', 'large',
-                     -2, 2, 0, 450, 60,
+                     -2, 2, 0, x_right, x_step,1,
                      False
                      )
 
