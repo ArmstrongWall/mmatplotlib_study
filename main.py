@@ -183,6 +183,13 @@ def print_hi(name):
     vx_gt, vy_gt, vz_gt, bgx_gt, bgy_gt, bgz_gt, \
     bax_gt, bay_gt, baz_gt = np.loadtxt('evaluation_fusion/gt_result_path.csv', delimiter=',', unpack=True)
 
+    time00, x00, y00, z00, qw00, qx00, qy00, qz00, \
+    vx00, vy00, vz00, bgx00, bgy00, bgz00, \
+    bax00, bay00, baz00 = np.loadtxt('evaluation_fusion_kitti00/our_result.csv', delimiter=',', unpack=True)
+
+    time_gt00, x_gt00, y_gt00, z_gt00, qw_gt00, qx_gt00, qy_gt00, qz_gt00, \
+    vx_gt00, vy_gt00, vz_gt00, bgx_gt00, bgy_gt00, bgz_gt00, \
+    bax_gt00, bay_gt00, baz_gt00 = np.loadtxt('evaluation_fusion_kitti00/gt_result_path.csv', delimiter=',', unpack=True)
 
 
     mu = 0.1
@@ -205,10 +212,13 @@ def print_hi(name):
 
     time-=time[0]
     time/=(1e10)
+    time00 -= time00[0]
+    time00 /= (1e10)
+
     plt.figure(figsize=(20, 10))
 
     sub_plot_3_value(4, 2, 1,
-                     time, bax, bay, baz,
+                     time00, bax00, bay00, baz00,
                      'x', 'y', 'z',
                      'time [$s$]', 'acc bias [$m/s^2$]', 'small',
                      '(a) Accelerometer bias estimates', 'large',
@@ -216,7 +226,7 @@ def print_hi(name):
                      )
 
     sub_plot_3_value(4, 2, 2,
-                     time, bgx, bgy, bgz,
+                     time00, bgx00, bgy00, bgz00,
                      'x', 'y', 'z',
                      'time [$s$]', 'gyro bias [$deg/s$]', 'small',
                      '(b) Gyroscope bias estimates', 'large',
@@ -241,8 +251,26 @@ def print_hi(name):
         i+=1
     angles_gt = np.array(angles_gt)
 
+    angles00=[]
+    i=0
+    for q0 in qw00:
+        q = [q0, qx00[i], qy00[i], qz00[i]]
+        euler=euler_from_quaternion(q)
+        angles00.append(euler)
+        i+=1
+    angles00 = np.array(angles00)
+
+    angles_gt00=[]
+    i=0
+    for q0_gt in qw_gt00:
+        q_gt = [q0_gt, qx_gt00[i], qy_gt00[i], qz_gt00[i]]
+        euler_gt=euler_from_quaternion(q_gt)
+        angles_gt00.append(euler_gt)
+        i+=1
+    angles_gt00 = np.array(angles_gt00)
+
     sub_plot_2_value(4, 2, 3,
-                     time, angles[:, 0]*57.3, angles_gt[:, 0]*57.3,
+                     time00, angles00[:, 0]*57.3, angles_gt00[:, 0]*57.3,
                      'our', 'gt',
                      '', 'roll [$deg$]', 'small',
                      '(c) Attitude estimates', 'large',
@@ -251,7 +279,7 @@ def print_hi(name):
                      )
 
     sub_plot_2_value(4, 2, 5,
-                     time, angles[:, 1]*57.3, angles_gt[:, 1]*57.3,
+                     time00, angles00[:, 1]*57.3, angles_gt00[:, 1]*57.3,
                      '', '',
                      '', 'pitch [$deg$]', 'small',
                      '', 'large',
