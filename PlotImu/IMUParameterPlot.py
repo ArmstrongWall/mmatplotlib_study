@@ -175,7 +175,7 @@ def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
 
 
-    path='evaluation_euroc/'
+    path= '../data/evaluation_euroc/'
     x_right=100
     x_step=20
 
